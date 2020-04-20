@@ -20,24 +20,27 @@ mongoose.connect(process.env.DB, {
 const Issue = require('../models/issue.js')
 module.exports = function (app) {
 
-  //?I can GET /api/issues/{projectname} for an array of all issues on that specific project with all the information for each issue as was returned when posted.
-  //?I can filter my get request by also passing along any field and value in the query(ie. /api/issues/{project}?open=false). I can pass along as many fields/values as I want.
+  //?I can GET /api/issues/{projectname} for an array of all issues on that specific project 
+  //?with all the information for each issue as was returned when posted.
+  
+  //?I can filter my get request by also passing along any field and value in the query(ie.
+  //? /api/issues/{project}?open=false). I can pass along as many fields/values as I want.
 
   app.route('/api/issues/:project')
 
     .get(function (req, res) {
       var project = req.params.project;
-      Issue.aggregate()
-        .match({
-          project: project
-        })
-        .exec((err, issuesFound) => {
+      
+      const searchOpt = (Object.keys(req.query).length===0) ? {project: project} : Object.assign({},{project:project},req.query)
+      console.log(req.query,searchOpt)
+      Issue.find(searchOpt,null,(err, issuesFound) => {
           if (issuesFound !== null) {
+            console.log(err,issuesFound)
             res.json(issuesFound)
           } else {
             res.json({});
           }
-        })
+      })
     })
 
     //?I can POST /api/issues/{projectname} with form data containing required issue_title, issue_text, created_by, and optional assigned_to and status_text.

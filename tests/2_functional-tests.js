@@ -125,9 +125,24 @@ suite('Functional Tests', function() {
       });
       
     });
-    /*
+    
     suite('GET /api/issues/{project} => Array of objects with issue data', function() {
-      
+      let project=`project${Date.now()}`
+      suiteSetup((done)=>{
+        chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title:"filter_this_issue",
+          issue_text:"filter this",
+          created_by:"Me",
+          assigned_to: "TEST GET",
+          status_text: "GETFILTER",
+          open:false
+        })
+        .end((err,res) => {
+          done()
+        })        
+      })
       test('No filter', function(done) {
         chai.request(server)
         .get('/api/issues/test')
@@ -149,15 +164,35 @@ suite('Functional Tests', function() {
       });
       
       test('One filter', function(done) {
-        
+        chai.request(server)
+        .get('/api/issues/test')
+        .query({created_by:"Me"})
+        .end(function(err, res){
+          console.log(res.body)
+          assert.equal(res.status, 200);
+          assert.equal(res.body[0].created_by,"Me")
+          assert.equal(res.body[0].issue_title,"filter_this_issue")
+          assert.equal(res.body[0].issue_text,"filter this")
+          done();
+        }); 
       });
       
       test('Multiple filters (test for multiple fields you know will be in the db for a return)', function(done) {
-        
+        chai.request(server)
+        .get('/api/issues/test')
+        .query({created_by:"Me",open:true})
+        .end(function(err, res){
+          console.log(res.body)
+          assert.equal(res.status, 200);
+          assert.equal(res.body[0].created_by,"Me")
+          assert.equal(res.body[0].issue_title,"filter_this_issue")
+          assert.equal(res.body[0].issue_text,"filter this")
+          done();
+        });  
       });
       
     });
-    */
+    
     suite('DELETE /api/issues/{project} => text', function() {
       let issueCreated;
       suiteSetup((done)=>{
