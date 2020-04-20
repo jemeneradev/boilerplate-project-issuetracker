@@ -125,7 +125,7 @@ suite('Functional Tests', function() {
       });
       
     });
-    
+    /*
     suite('GET /api/issues/{project} => Array of objects with issue data', function() {
       
       test('No filter', function(done) {
@@ -157,16 +157,56 @@ suite('Functional Tests', function() {
       });
       
     });
-    
+    */
     suite('DELETE /api/issues/{project} => text', function() {
-      
+      let issueCreated;
+      suiteSetup((done)=>{
+        chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title: 'Title',
+          issue_text: 'text',
+          created_by: 'Functional Test - Every field filled in',
+          assigned_to: 'Chai and Mocha',
+          status_text: 'In QA'
+        })
+        .end(function(err, res){
+          issueCreated = res.body
+          done();
+        });
+      })  
       test('No _id', function(done) {
-        
+        chai.request(server)
+        .delete('/api/issues/test')
+        .send({})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,"_id error")
+          done();
+        }); 
       });
       
       test('Valid _id', function(done) {
-        
+        chai.request(server)
+        .delete('/api/issues/test')
+        .send({_id:issueCreated._id})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,`deleted ${issueCreated._id}`)
+          done();
+        });  
       });
+
+      test('inValid _id', function(done) {
+        chai.request(server)
+        .delete('/api/issues/test')
+        .send({_id:"doesnotexist"})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,`could not delete doesnotexist`)
+          done();
+        });  
+      });;
       
     });
 

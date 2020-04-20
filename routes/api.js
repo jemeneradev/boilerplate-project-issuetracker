@@ -82,10 +82,22 @@ module.exports = function (app) {
     })
 
     //?I can DELETE /api/issues/{projectname} with a _id to completely delete an issue. If no _id is sent return '_id error', success: 'deleted '+_id, failed: 'could not delete '+_id.
-
     .delete(function (req, res) {
       var project = req.params.project;
-
+      if(req.body._id===undefined){
+        res.json("_id error")
+      }
+      else(
+        Issue.findByIdAndDelete(req.body._id,(err,issueRemoved)=>{
+          if (issueRemoved === null) {
+            res.json(`could not delete ${req.body._id}`)
+          }
+          else {
+            console.log(issueRemoved)
+            res.json(`deleted ${req.body._id}`) 
+          }
+        })
+      )
     });
 
 };
