@@ -29,35 +29,99 @@ suite('Functional Tests', function() {
         })
         .end(function(err, res){
           assert.equal(res.status, 200);
-          
-          //fill me in too!
-          
+          assert.equal(res.body.issue_title, 'Title')
+          assert.equal(res.body.issue_text, 'text')
+          assert.equal(res.body.created_by, 'Functional Test - Every field filled in')
+          assert.equal(res.body.assigned_to, 'Chai and Mocha')
+          assert.equal(res.body.status_text, 'In QA')
+          assert.equal(res.body.open, true)
           done();
         });
       });
       
       test('Required fields filled in', function(done) {
-        
+        chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title: 'Title',
+          issue_text: 'text',
+          created_by: 'Functional Test - Every field filled in'
+        })
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body.issue_title, 'Title')
+          assert.equal(res.body.issue_text, 'text')
+          assert.equal(res.body.created_by, 'Functional Test - Every field filled in')
+          assert.equal(res.body.open, true)
+          done();
+        });
       });
       
       test('Missing required fields', function(done) {
-        
+        chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title: 'Title',
+          issue_text: 'text'
+          //created_by: 'Functional Test - Every field filled in'
+        })
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(Object.keys(res.body).length,0)
+          done();
+        });
       });
       
     });
     
     suite('PUT /api/issues/{project} => text', function() {
-      
+      let issueCreated;
+      suiteSetup((done)=>{
+        chai.request(server)
+        .post('/api/issues/test')
+        .send({
+          issue_title: 'Title',
+          issue_text: 'text',
+          created_by: 'Functional Test - Every field filled in',
+          assigned_to: 'Chai and Mocha',
+          status_text: 'In QA'
+        })
+        .end(function(err, res){
+          issueCreated = res.body
+          done();
+        });
+      }) 
       test('No body', function(done) {
-        
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,"no updated field sent")
+          done();
+        }); 
       });
       
       test('One field to update', function(done) {
-        
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({_id: issueCreated._id, open:false})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,"successfully updated")
+          done();
+        });  
       });
       
       test('Multiple fields to update', function(done) {
-        
+        chai.request(server)
+        .put('/api/issues/test')
+        .send({_id: issueCreated._id, open:false, created_by:"me"})
+        .end(function(err, res){
+          assert.equal(res.status, 200);
+          assert.equal(res.body,"successfully updated")
+          done();
+        });  
       });
       
     });
